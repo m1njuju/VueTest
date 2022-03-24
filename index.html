@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        .memo {
+            padding: 10px;
+            margin: 10px 0;
+            width: 300px;
+            border: dashed 3px #CCC;
+            border-radius: 30px;
+        }
+        .button_push {
+            border: none;
+            padding: 6px;
+            border-radius: 40%;
+            background-color: lightgray;
+        }
+        .button_x {
+            border: none;
+            padding: 6px;
+            border-radius: 40%;
+            background-color: lightgray;
+        }
+        .button_x:hover,.button_push:hover {
+            background-color: gray;
+        }
+    </style>
+    <script>
+        Vue.component('memo-component',{
+            //부모로부터 받아올 속성
+            props: ['id','title'],
+            template:`
+            <div class="memo">
+                <br>
+            <slot name='title2' v-bind:title='title'></slot>
+            <button @click="deletememo" class="button_x">X</button>
+            
+            <slot></slot>
+            <hr>
+            <p>{{date}}</p>
+            </div>`,
+            data: function() {
+                return {
+                    date: new Date().toLocaleString()
+                }
+            },
+            methods: {
+                deletememo: function() {
+                    this.$emit("delete", this.id);
+                }
+            }
+        })
+    </script>
+</head>
+<body>
+    <div id="app">
+        <h2>메모</h2>
+        <input type="text" v-model="title"><br>
+        <textarea name="message" rows="10" cols="30" v-model="memo"></textarea>
+        <button @click="addMemo" class="button_push">추가</button>
+        <memo-component
+        v-for="m in memolist" v-bind:id="m.id" v-bind:key="m.id"
+        @delete="deleteMemo" v-bind:title="title"
+        >
+        <template v-slot:title2="{title}">
+            <h3 style="display:inline">{{m.title}}</h3>
+        </template><br><br>
+        {{m.memo}}
+        </memo-component>
+    </div>
+
+    <div>
+        
+    </div>
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                id: 0,
+                title: '',
+                memo: '',
+                memolist: []
+            },
+            methods: {
+                addMemo: function() {
+                    this.memolist.push({
+                        id: this.id,
+                        title: this.title,
+                        memo: this.memo
+                    })
+                    this.id++;
+                    this.title= "";
+                    this.memo= "";
+                },
+                deleteMemo:function(id) {
+                    let index;
+                    this.memolist.forEach((element, i) => {
+                        if(element.id == id){
+                            index = i;
+                        }
+                    });
+                    this.memolist.splice(index,1);
+                }
+            }
+        })
+    </script>
+</body>
+</html>
